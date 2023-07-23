@@ -9,12 +9,14 @@ import nest_asyncio
 nest_asyncio.apply()
 
 providers = {
-    'gpt-3.5-turbo': Provider.EasyChat,
+    'gpt-3.5-turbo': Provider.GetGpt,
     'gpt-4': Provider.ChatgptAi,
+    'falcon-40b': Provider.H2o,
 }
 
-MODEL_IDS = list(ModelUtils.convert.keys())
-DEFAULT_MODEL = 'gpt-3.5-turbo'
+MODEL_IDS = list(providers.keys())
+GPT3 = 'gpt-3.5-turbo'
+GPT4 = 'gpt-4'
 app = Quart(__name__)
 cors(app)
 
@@ -29,11 +31,11 @@ def get_models():
 async def chat_completions():
     data = await request.get_json()
     streaming = data.get('stream', False)
-    model = data.get('model', DEFAULT_MODEL)
+    model = data.get('model', GPT3)
     messages = data.get('messages')
 
     if model not in MODEL_IDS:
-        model = DEFAULT_MODEL
+        model = GPT4 if 'gpt-4' in model else GPT3
         
     if model in providers:
         provider = providers[model]
@@ -110,7 +112,7 @@ def catch_all(path):
     isHuggingface = "hf.space" in host
     protocol = "https" if isHuggingface else request.scheme
     proxy_url = f'{protocol}://{host}'
-    return f'<h1>OpenAI Reverse Proxy URL:</h1><h2>{proxy_url}</h2><h1>Models:</h1><h2>{str(list(providers.keys()))}</h2><h3>(Enable "Show "External" models" in ST to see all)</h3>'
+    return f'<h1>OpenAI Reverse Proxy URL:</h1><h2>{proxy_url}</h2><h1>Models:</h1><h2>{str(MODEL_IDS)}</h2>'
 
 
 if __name__ == '__main__':
