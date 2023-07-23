@@ -1,0 +1,4 @@
+git+https://github.com/xtekky/gpt4free.git
+quart
+quart_cors
+nest_asyncio
