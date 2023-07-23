@@ -103,6 +103,16 @@ async def chat_completions():
     return app.response_class(do_stream(), mimetype='text/event-stream')
 
 
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def catch_all(path):
+    host = request.host
+    isHuggingface = "hf.space" in host
+    protocol = "https" if isHuggingface else request.scheme
+    proxy_url = f'{protocol}://{host}'
+    return f'<h1>OpenAI Reverse Proxy URL:</h1><h2>{proxy_url}</h2><h1>Models:</h1><h2>{str(list(providers.keys()))}</h2><h3>(Enable "Show "External" models" in ST to see all)</h3>'
+
+
 if __name__ == '__main__':
     config = {
         'host': '0.0.0.0',
